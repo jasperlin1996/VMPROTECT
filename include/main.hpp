@@ -2,12 +2,11 @@
 #define _MAIN_HPP
 
 #include <iostream>
-#include <stdint.h>
 
 typedef uint8_t BYTE;
 typedef uint16_t WORD;
 typedef uint32_t DWORD;
 
-int loadProtectedCode(BYTE **);
+BYTE* loadProtectedCode(int &, std::string);
 
 #endif //_MAIN_HPP

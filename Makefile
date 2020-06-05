@@ -1,6 +1,6 @@
 PROJECTNAME = VMPROTECT
 CC = g++
-CFLAGS = -Wall -Wextra -std=c++11
+CFLAGS = -Wall -Wextra -std=c++11 -g
 SRC_DIR = src
 OBJ_DIR = obj
 PRSOURCES = $(wildcard $(SRC_DIR)/*.cpp)
@@ -27,4 +27,10 @@ clean:
 	rm ./*.exe
 
 run:
-	./$(PREXEC)
+	./$(PREXEC) $(ARGS)
+
+TEST_SRC_DIR = tests
+TEST_SOURCE = $(wildcard $(SRC_DIR)/vmcpu.cpp) $(wildcard $(TEST_SRC_DIR)/test01.cpp)
+TEST_EXEC = vmtest01.exe
+buildtest:
+	$(CC) $(TEST_SOURCE) -o $(TEST_EXEC) $(CFLAGS) -DVMTESTS

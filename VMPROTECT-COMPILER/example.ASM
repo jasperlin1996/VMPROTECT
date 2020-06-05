@@ -1,102 +1,103 @@
-# Usr input (addr) saved in R0
-# DATA LABEL
-# JUMP LOCATION LABEL
+; Usr input (addr) saved in R0
+; Answer: vmobfuscationisthebest
 
-    MOV R1, R0
-    MOVW R3, 0003
-    MOVW R2, 0000
-    MOVW R4, 0000
-    MOVW R5, 0000
-    ADVR R3, 0002
+%include "vm.inc"
 
-9JLL:
-    MOVMRB R2, R1
-    ADRR R4, R2
-    ADVR R4, 0005
-    ADVR R1, 0001
-    MOVMRB R2, R1
-    CMP R2, R5
-    JZ 8JLL@
+main:
+    mov r1, r0
+    movd r3, 0x10
+    movd r2, 0x0
+    movd r4, 0x0
+    movd r5, 0x0
+    advrd r3, 0x5
 
-    ADRR R4, R2
-    ADVR R4, 000A
-    ADVR R1, 0001
-    MOVMRB R2, R1
-    CMP R2, R5
-    JZ 8JLL@
+JLL9:
+    movmrb r2, r1
+    adrr r4, r2
+    advrd r4, 0x5
+    advrd r1, 0x1
+    movmrb r2, r1
+    cmp r2, r5
+    jz JLL8
 
-    ADRR R4, R2
-    SUBVR R4, 0006
-    ADVR R1, 0001
-    MOVMRB R2, R1
-    CMP R2, R5
-    JZ 8JLL@
+    adrr r4, r2
+    advrd r4, 0xa
+    advrd r1, 0x1
+    movmrb r2, r1
+    cmp r2, r5
+    jz JLL8
 
-    ADRR R4, R2
-    SUBVR R4, 000C
-    ADVR R1, 0001
-    MOVMRB R2, R1
-    CMP R2, R5
-    JZ 8JLL@
+    adrr r4, r2
+    subvrd r4, 0x6
+    advrd r1, 0x1
+    movmrb r2, r1
+    cmp r2, r5
+    jz JLL8
 
-    ADRR R4, R2
-    ADVR R4, 000F
-    ADVR R1, 0001
-    MOVMRB R2, R1
-    CMP R2, R5
-    JZ 8JLL@
+    adrr r4, r2
+    subvrd r4, 0xc
+    advrd r1, 0x1
+    movmrb r2, r1
+    cmp r2, r5
+    jz JLL8
 
-    JNZ 9JLL@
+    adrr r4, r2
+    advrd r4, 0xf
+    advrd r1, 0x1
+    movmrb r2, r1
+    cmp r2, r5
+    jz JLL8
 
-8JLL:    
-    ADVR R3, 0005
-    MOVW R5, 0980
-# XOR 98A, 980
-    XOR R4, R5
-    CMP R4, R3
-    JZ 6JLL@
-    JNZ 7JLL@
+    jnz JLL9
 
-6JLL:
-# PRINT "PASS"
-    JMP 5JLL@
+JLL8:    
+    advrd r3, 0x5
+    movd r5, 0x980
+    xor r4, r5
+    cmp r4, r3
+    jz JLL6
+    jnz JLL7
 
-7JLL:
-# PRINT "FAILED"
-    JMP 4JLL@
+JLL6:
+; PRINT "PASS"
+    jmp JLL5
 
-5JLL:
-    MOVW R1, 1DL@
-    JMP 3JLL@
+JLL7:
+; PRINT "FAILED"
+    jmp JLL4
 
-4JLL:
-    MOVW R1, 2DL@
-    JMP 3JLL@
+JLL5:
+    movd r1, data1
+    jmp JLL3
 
-3JLL:
-    MOV R2, R1
-    ADVR R2, 0001
-    MOVW R3, 0000
-    MOVW R4, 0000
+JLL4:
+    movd r1, data2
+    jmp JLL3
 
-1JLL:
-    MOVMRB R3, R1
-    PUSH R3
-    POC
-    ADVR R1, 0001
-    ADVR R2, 0001
-    MOVMRB R3, R2
-    CMP R3, R4
-    JZ 2JLL@
-    JNZ 1JLL@
+JLL3:
+    mov r2, r1
+    advrd r2, 0x1
+    movd r3, 0x0
+    movd r4, 0x0
 
-2JLL:
-    MOVMRB R3, R1
-    PUSH R3
-    POCN
-    EC
+JLL1:
+    mov r3, r1
+    push r3
+    poc
+    advrd r1, 0x1
+    advrd r2, 0x1
+    movmrb r3, r2
+    cmp r3, r4
+    jz JLL2
+    jnz JLL1
 
-1DL:
-    "PASS",0
-2DL:
-    "FAILED",0
+JLL2:
+    mov r3, r1
+    push r3
+    pocn
+    ee
+
+data1:
+    db "PASS", 0 
+data2:
+    db "FAILED", 0

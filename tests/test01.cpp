@@ -1,4 +1,5 @@
 #include "../include/test.hpp"
+#include "../include/vmcpu.hpp"
 
 class VMTest {
     private:
@@ -55,23 +56,23 @@ bool VMTest::testVM()
         */
     /* ************************* */
     ++currentTestNumber;
-    T_AS->data[0] = 0x00; // NOP
-    T_AS->data[1] = 0xEC; // EC
+    T_AS->codeData[0] = 0x00; // NOP
+    T_AS->codeData[1] = 0xEE; // EE
     vm->vcpuFlag = VCpuFlag::OK;
     vm->run();
     if(vm->vcpuFlag == VCpuFlag::ERROR) {
         bTestPass = false;
         goto FINISH_TESTS;
     }
-    if(T_AS->data[T_REGS->PC] == 0x00) {
+    if(T_AS->codeData[T_REGS->PC] == 0x00) {
         for(int i = 0; i < 6; i++){
-            if(T_REGS->R[i] != (WORD) 0) {
+            if(T_REGS->R[i] != (DWORD) 0) {
                 bTestPass = false;
                 goto FINISH_TESTS;
             }
         }
         for(int i = 3; i < 4096; i++){
-            if(T_AS->data[i] != 0x00) {
+            if(T_AS->codeData[i] != 0x00) {
                 bTestPass = false;
                 goto FINISH_TESTS;
             }
@@ -81,9 +82,9 @@ bool VMTest::testVM()
         bTestPass = false;
         goto FINISH_TESTS;
     }
-    T_AS->data[0] = 0x00;
-    T_AS->data[1] = 0x00;
-    T_REGS->PC = (WORD) 0;
+    T_AS->codeData[0] = 0x00;
+    T_AS->codeData[1] = 0x00;
+    T_REGS->PC = (DWORD) 0;
     printTestResult(bTestPass, currentTestNumber);
     /* ************************* */
         /* TEST 2
@@ -91,19 +92,20 @@ bool VMTest::testVM()
         */
     /* ************************* */
     ++currentTestNumber;
-    T_REGS->R[1] = (WORD) 5;
-    T_REGS->R[2] = (WORD) 1;
-    T_AS->data[0] = 0x02; // MOV
-    T_AS->data[1] = 0x12; // R1, R2
-    T_AS->data[2] = 0xEC; // EC
+    T_REGS->R[1] = (DWORD) 5;
+    T_REGS->R[2] = (DWORD) 1;
+    T_AS->codeData[0] = 0x01; // MOV
+    T_AS->codeData[1] = 0x01; // R1
+    T_AS->codeData[2] = 0x02; // R2
+    T_AS->codeData[3] = 0xEE; // EE
     vm->vcpuFlag = VCpuFlag::OK;
     vm->run();
     if(vm->vcpuFlag == VCpuFlag::ERROR) {
         bTestPass = false;
         goto FINISH_TESTS;
     }
-    if(T_REGS->R[2] == (WORD) 1) {
-        if(T_REGS->R[1] != (WORD) 1) {
+    if(T_REGS->R[2] == (DWORD) 1) {
+        if(T_REGS->R[1] != (DWORD) 1) {
             bTestPass = false;
             goto FINISH_TESTS;
         }
@@ -112,12 +114,13 @@ bool VMTest::testVM()
         bTestPass = false;
         goto FINISH_TESTS;
     }
-    T_REGS->R[1] = (WORD) 0;
-    T_REGS->R[2] = (WORD) 0;
-    T_AS->data[0] = 0x00;
-    T_AS->data[1] = 0x00;
-    T_AS->data[2] = 0x00;
-    T_REGS->PC = (WORD) 0;
+    T_REGS->R[1] = (DWORD) 0;
+    T_REGS->R[2] = (DWORD) 0;
+    T_AS->codeData[0] = 0x00;
+    T_AS->codeData[1] = 0x00;
+    T_AS->codeData[2] = 0x00;
+    T_AS->codeData[3] = 0x00;
+    T_REGS->PC = (DWORD) 0;
     printTestResult(bTestPass, currentTestNumber);
     /* ************************* */
         /* TEST 3
@@ -125,31 +128,31 @@ bool VMTest::testVM()
         */
     /* ************************* */
     ++currentTestNumber;
-    T_REGS->R[2] = (WORD) 6;
-    T_AS->data[0] = 0x03; // MOVMB
-    T_AS->data[1] = 0x02; // R2
-    T_AS->data[2] = 0x07;
-    T_AS->data[3] = 0x00; // 0007h
-    T_AS->data[4] = 0xEC; // EC
-    T_AS->data[7] = 0x03;
+    T_REGS->R[2] = (DWORD) 6;
+    T_AS->codeData[0] = 0x02; // MOVMB
+    T_AS->codeData[1] = 0x02; // R2
+    T_AS->codeData[2] = 0x07;
+    T_AS->codeData[3] = 0x00; // 0007h
+    T_AS->codeData[4] = 0xEE; // EE
+    T_AS->codeData[7] = 0x03;
     vm->vcpuFlag = VCpuFlag::OK;
     vm->run();
     if(vm->vcpuFlag == VCpuFlag::ERROR) {
         bTestPass = false;
         goto FINISH_TESTS;
     }
-    if(T_REGS->R[2] != (WORD) 3){
+    if(T_REGS->R[2] != (DWORD) 3){
         bTestPass = false;
         goto FINISH_TESTS;
     }
-    T_REGS->R[2] = (WORD) 0;
-    T_AS->data[0] = 0x00;
-    T_AS->data[1] = 0x00;
-    T_AS->data[2] = 0x00;
-    T_AS->data[3] = 0x00;
-    T_AS->data[4] = 0x00;
-    T_AS->data[7] = 0x00;
-    T_REGS->PC = (WORD) 0;
+    T_REGS->R[2] = (DWORD) 0;
+    T_AS->codeData[0] = 0x00;
+    T_AS->codeData[1] = 0x00;
+    T_AS->codeData[2] = 0x00;
+    T_AS->codeData[3] = 0x00;
+    T_AS->codeData[4] = 0x00;
+    T_AS->codeData[7] = 0x00;
+    T_REGS->PC = (DWORD) 0;
     printTestResult(bTestPass, currentTestNumber);
     /* ************************* */
         /* TEST 4
@@ -157,14 +160,15 @@ bool VMTest::testVM()
         */
     /* ************************* */
     ++currentTestNumber;
+    T_REGS->R[2] = (DWORD) 0;
     T_REGS->R[2] = (WORD) 6;
-    T_AS->data[0] = 0x04; // MOVMW
-    T_AS->data[1] = 0x02; // R2
-    T_AS->data[2] = 0x07;
-    T_AS->data[3] = 0x00; // 0007h
-    T_AS->data[4] = 0xEC; // EC
-    T_AS->data[7] = 0x03;
-    T_AS->data[8] = 0x04;
+    T_AS->codeData[0] = 0x03; // MOVMW
+    T_AS->codeData[1] = 0x02; // R2
+    T_AS->codeData[2] = 0x07;
+    T_AS->codeData[3] = 0x00; // 0007h
+    T_AS->codeData[4] = 0xEE; // EE
+    T_AS->codeData[7] = 0x03;
+    T_AS->codeData[8] = 0x04;
     vm->vcpuFlag = VCpuFlag::OK;
     vm->run();
     if(vm->vcpuFlag == VCpuFlag::ERROR) {
@@ -175,15 +179,15 @@ bool VMTest::testVM()
         bTestPass = false;
         goto FINISH_TESTS;
     }
-    T_REGS->R[2] = (WORD) 0;
-    T_AS->data[0] = 0x00;
-    T_AS->data[1] = 0x00;
-    T_AS->data[2] = 0x00;
-    T_AS->data[3] = 0x00;
-    T_AS->data[4] = 0x00;
-    T_AS->data[7] = 0x00;
-    T_AS->data[8] = 0x00;
-    T_REGS->PC = (WORD) 0;
+    T_REGS->R[2] = (DWORD) 0;
+    T_AS->codeData[0] = 0x00;
+    T_AS->codeData[1] = 0x00;
+    T_AS->codeData[2] = 0x00;
+    T_AS->codeData[3] = 0x00;
+    T_AS->codeData[4] = 0x00;
+    T_AS->codeData[7] = 0x00;
+    T_AS->codeData[8] = 0x00;
+    T_REGS->PC = (DWORD) 0;
     printTestResult(bTestPass, currentTestNumber);
     /* ************************* */
         /* TEST 5
@@ -191,22 +195,22 @@ bool VMTest::testVM()
         */
     /* ************************* */
     ++currentTestNumber;
-    T_REGS->R[2] = (WORD) 6;
-    T_AS->data[0] = 0x07; // MOVBM
-    T_AS->data[1] = 0x02; // R2
-    T_AS->data[2] = 0x07;
-    T_AS->data[3] = 0x00; // 0007h
-    T_AS->data[4] = 0xEC; // EC
-    T_AS->data[7] = 0x03;
+    T_REGS->R[2] = (DWORD) 6;
+    T_AS->codeData[0] = 0x06; // MOVBM
+    T_AS->codeData[1] = 0x02; // R2
+    T_AS->codeData[2] = 0x07;
+    T_AS->codeData[3] = 0x00; // 0007h
+    T_AS->codeData[4] = 0xEE; // EE
+    T_AS->codeData[7] = 0x03;
     vm->vcpuFlag = VCpuFlag::OK;
     vm->run();
     if(vm->vcpuFlag == VCpuFlag::ERROR) {
         bTestPass = false;
         goto FINISH_TESTS;
     }
-    if(T_REGS->R[2] == (WORD) 6) {
-        if(T_AS->data[7] == 0x06) {
-            if(T_AS->data[8] != 0x00) {
+    if(T_REGS->R[2] == (DWORD) 6) {
+        if(T_AS->codeData[7] == 0x06) {
+            if(T_AS->codeData[8] != 0x00) {
                 bTestPass = false;
                 goto FINISH_TESTS;
             }
@@ -220,14 +224,14 @@ bool VMTest::testVM()
         bTestPass = false;
         goto FINISH_TESTS;
     }
-    T_REGS->R[2] = (WORD) 0;
-    T_AS->data[0] = 0x00;
-    T_AS->data[1] = 0x00;
-    T_AS->data[2] = 0x00;
-    T_AS->data[3] = 0x00;
-    T_AS->data[4] = 0x00;
-    T_AS->data[7] = 0x00;
-    T_REGS->PC = (WORD) 0;
+    T_REGS->R[2] = (DWORD) 0;
+    T_AS->codeData[0] = 0x00;
+    T_AS->codeData[1] = 0x00;
+    T_AS->codeData[2] = 0x00;
+    T_AS->codeData[3] = 0x00;
+    T_AS->codeData[4] = 0x00;
+    T_AS->codeData[7] = 0x00;
+    T_REGS->PC = (DWORD) 0;
     printTestResult(bTestPass, currentTestNumber);
     /* ************************* */
         /* TEST 6
@@ -235,23 +239,23 @@ bool VMTest::testVM()
         */
     /* ************************* */
     ++currentTestNumber;
-    T_REGS->R[2] = (WORD) 6;
-    T_AS->data[0] = 0x08; // MOVWM
-    T_AS->data[1] = 0x02; // R2
-    T_AS->data[2] = 0x07;
-    T_AS->data[3] = 0x00; // 0007h
-    T_AS->data[4] = 0xEC; // EC
-    T_AS->data[7] = 0x03;
-    T_AS->data[8] = 0x04;
+    T_REGS->R[2] = (DWORD) 6;
+    T_AS->codeData[0] = 0x07; // MOVWM
+    T_AS->codeData[1] = 0x02; // R2
+    T_AS->codeData[2] = 0x07;
+    T_AS->codeData[3] = 0x00; // 0007h
+    T_AS->codeData[4] = 0xEE; // EE
+    T_AS->codeData[7] = 0x03;
+    T_AS->codeData[8] = 0x04;
     vm->vcpuFlag = VCpuFlag::OK;
     vm->run();
     if(vm->vcpuFlag == VCpuFlag::ERROR) {
         bTestPass = false;
         goto FINISH_TESTS;
     }
-    if(T_REGS->R[2] == (WORD) 6) {
-        if(T_AS->data[7] == 0x06) {
-            if(T_AS->data[8] != 0x00) {
+    if(T_REGS->R[2] == (DWORD) 6) {
+        if(T_AS->codeData[7] == 0x06) {
+            if(T_AS->codeData[8] != 0x00) {
                 bTestPass = false;
                 goto FINISH_TESTS;
             }
@@ -265,15 +269,15 @@ bool VMTest::testVM()
         bTestPass = false;
         goto FINISH_TESTS;
     }
-    T_REGS->R[2] = (WORD) 0;
-    T_AS->data[0] = 0x00;
-    T_AS->data[1] = 0x00;
-    T_AS->data[2] = 0x00;
-    T_AS->data[3] = 0x00;
-    T_AS->data[4] = 0x00;
-    T_AS->data[7] = 0x00;
-    T_AS->data[8] = 0x00;
-    T_REGS->PC = (WORD) 0;
+    T_REGS->R[2] = (DWORD) 0;
+    T_AS->codeData[0] = 0x00;
+    T_AS->codeData[1] = 0x00;
+    T_AS->codeData[2] = 0x00;
+    T_AS->codeData[3] = 0x00;
+    T_AS->codeData[4] = 0x00;
+    T_AS->codeData[7] = 0x00;
+    T_AS->codeData[8] = 0x00;
+    T_REGS->PC = (DWORD) 0;
     printTestResult(bTestPass, currentTestNumber);
     /* ************************* */
         /* TEST 7
@@ -281,31 +285,31 @@ bool VMTest::testVM()
         */
     /* ************************* */
     ++currentTestNumber;
-    T_REGS->R[2] = (WORD) 6;
-    T_AS->data[0] = 0x62; // POP
-    T_AS->data[1] = 0x02; // R2
-    T_AS->data[2] = 0xEC; // EC
+    T_REGS->R[2] = (DWORD) 6;
+    T_AS->codeData[0] = 0x91; // POP
+    T_AS->codeData[1] = 0x02; // R2
+    T_AS->codeData[2] = 0xEE; // EE
     vm->vcpuFlag = VCpuFlag::OK;
     vm->run();
     if(vm->vcpuFlag == VCpuFlag::ERROR) {
         bTestPass = false;
         goto FINISH_TESTS;
     }
+    else if(vm->vcpuFlag == VCpuFlag::OK){
+        bTestPass = false;
+        goto FINISH_TESTS;
+    }
     else if(vm->vcpuFlag == VCpuFlag::UNDERFLOW){
-        if(T_REGS->R[2] != (WORD) 6) {
+        if(T_REGS->R[2] != (DWORD) 6) {
             bTestPass = false;
             goto FINISH_TESTS;
         }
     }
-    else{
-        bTestPass = false;
-        goto FINISH_TESTS;
-    }
-    T_REGS->R[2] = (WORD) 0;
-    T_AS->data[0] = 0x00;
-    T_AS->data[1] = 0x00;
-    T_AS->data[2] = 0x00;
-    T_REGS->PC = (WORD) 0;
+    T_REGS->R[2] = (DWORD) 0;
+    T_AS->codeData[0] = 0x00;
+    T_AS->codeData[1] = 0x00;
+    T_AS->codeData[2] = 0x00;
+    T_REGS->PC = (DWORD) 0;
     printTestResult(bTestPass, currentTestNumber);
     /* ************************* */
         /* TEST 8
@@ -313,11 +317,11 @@ bool VMTest::testVM()
         */
     /* ************************* */
     ++currentTestNumber;
-    T_REGS->R[2] = (WORD) 6;
+    T_REGS->R[2] = (DWORD) 6;
     T_REGS->SP = 0;
-    T_AS->data[0] = 0x61; // POP
-    T_AS->data[1] = 0x02; // R2
-    T_AS->data[2] = 0xEC; // EC
+    T_AS->codeData[0] = 0x90; // PUSH
+    T_AS->codeData[1] = 0x02; // R2
+    T_AS->codeData[2] = 0xEE; // EE
     vm->vcpuFlag = VCpuFlag::OK;
     vm->run();
     if(vm->vcpuFlag == VCpuFlag::ERROR) {
@@ -325,7 +329,7 @@ bool VMTest::testVM()
         goto FINISH_TESTS;
     }
     else if(vm->vcpuFlag == VCpuFlag::OVERFLOW){
-        if(T_REGS->R[2] != (WORD) 6) {
+        if(T_REGS->R[2] != (DWORD) 6) {
             bTestPass = false;
             goto FINISH_TESTS;
         }
@@ -334,12 +338,12 @@ bool VMTest::testVM()
         bTestPass = false;
         goto FINISH_TESTS;
     }
-    T_REGS->R[2] = (WORD) 0;
-    T_AS->data[0] = 0x00;
-    T_AS->data[1] = 0x00;
-    T_AS->data[2] = 0x00;
-    T_REGS->SP = sizeof(T_AS->stack) / sizeof(WORD);
-    T_REGS->PC = (WORD) 0;
+    T_REGS->R[2] = (DWORD) 0;
+    T_AS->codeData[0] = 0x00;
+    T_AS->codeData[1] = 0x00;
+    T_AS->codeData[2] = 0x00;
+    T_REGS->SP = sizeof(T_AS->stack) / sizeof(DWORD);
+    T_REGS->PC = (DWORD) 0;
     printTestResult(bTestPass, currentTestNumber);
     /* ************************* */
 
