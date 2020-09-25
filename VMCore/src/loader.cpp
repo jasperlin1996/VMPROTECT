@@ -1,6 +1,7 @@
 #include "../include/main.hpp"
 #include <string.h>
 #include <fstream>
+//#include <bitset>
 
 BYTE* loadProtectedCode(int &mcsize, std::string fileName)
 {
@@ -16,11 +17,29 @@ BYTE* loadProtectedCode(int &mcsize, std::string fileName)
         codeSize = fileBinToRead.tellg();
         fileBinToRead.seekg(0, fileBinToRead.beg);
         
-        if(codeSize > 51050)
+        if(codeSize > 51202)
         {
             fileBinToRead.close();
             throw 100011;
         }
+
+        WORD highByte = fileBinToRead.get();
+        WORD lowByte = fileBinToRead.get();
+
+        // std::cout << std::bitset<8>(highByte) << std::endl;
+        // std::cout << std::bitset<8>(lowByte) << std::endl;
+        // std::cout << std::hex << highByte << std::endl;
+        // std::cout << std::hex << lowByte << std::endl;
+
+        DWORD magicNumber = (highByte << 8) | lowByte;
+
+        if(magicNumber != MAGIC_NUMBER)
+        {
+            fileBinToRead.close();
+            throw 100012;
+        }
+
+        fileBinToRead.seekg(0, fileBinToRead.beg);
 
         mc = new BYTE[codeSize];
         char byte;

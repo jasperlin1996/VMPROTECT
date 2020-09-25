@@ -1,0 +1,55 @@
+#ifndef _VM_CPU_OPC
+#define _VM_CPU_OPC
+
+#define NOP 0x00
+#define EE 0xEE
+#define MOV 0x01
+#define MOVMB 0x02
+#define MOVMW 0x03
+#define MOVB 0x04
+#define MOVW 0x05
+#define MOVBM 0x06
+#define MOVWM 0x07
+#define MOVMRB 0x08
+#define MOVMRW 0x09
+#define MOVMD 0x0A
+#define MOVD 0x0B
+#define MOVDM 0x0C
+#define MOVMRD 0x0D
+#define JMP 0x20
+#define JZ 0x21
+#define JNZ 0x22
+#define JAE 0x23
+#define JBE 0x24
+#define JB 0x25
+#define JA 0x26
+#define ADVR 0x30
+#define ADRR 0x31
+#define ADRRL 0x32
+#define SUBVR 0x33
+#define SUBRR 0x34
+#define SUBRRL 0x35
+#define XOR 0x36
+#define XORL 0x37
+#define NOT 0x38
+#define NOTB 0x39
+#define ADVRD 0x3A
+#define SUBVRD 0x3B
+#define SHR 0x3C
+#define SHL 0x3D
+#define CMP 0x50
+#define CMPL 0x51
+#define PUSH 0x90
+#define POP 0x91
+#define CLST 0x92
+#define SETSP 0x93
+#define POC 0xA0
+#define POCN 0xA1
+#define TIB 0xA2
+#define GIC 0xA3
+#define PIC 0xA4
+#define PICN 0xA5
+#define PXV 0xA6
+#define PXVN 0xA7
+
+#endif

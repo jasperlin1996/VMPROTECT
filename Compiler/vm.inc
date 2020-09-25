@@ -161,8 +161,18 @@ dd %2
 %endmacro
 
 %macro subvrd 2
-db 0x3a, %1
+db 0x3b, %1
 dd %2
+%endmacro
+
+%macro shr 2
+db 0x3c, %1
+db %2
+%endmacro
+
+%macro shl 2
+db 0x3d, %1
+db %2
 %endmacro
 
 %macro cmp 2
@@ -181,10 +191,43 @@ db 0x90, %1
 db 0x91, %1
 %endmacro
 
+%macro clst 0
+db 0x92
+%endmacro
+
+%macro setsp 1
+db 0x93
+dd %1
+%endmacro
+
 %macro poc 0
 db 0xa0
 %endmacro
 
 %macro pocn 0
 db 0xa1
+%endmacro
+
+%macro tib 0
+db 0xa2
+%endmacro
+
+%macro gic 1
+db 0xa3, %1
+%endmacro
+
+%macro pic 0
+db 0xa4
+%endmacro
+
+%macro picn 0
+db 0xa5
+%endmacro
+
+%macro pxv 0
+db 0xa6
+%endmacro
+
+%macro pxvn 0
+db 0xa7
 %endmacro

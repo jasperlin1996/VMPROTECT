@@ -1,16 +1,21 @@
-PROJECTNAME = VMPROTECT
+PROJECTNAME = VmprotDEBUGGER
 CC = g++
-CFLAGS = -Wall -Wextra -std=c++11 -g
-SRC_DIR = src
+CFLAGS = -Wall -Wextra -std=c++11
+SRC_DIR = .
 OBJ_DIR = obj
 PRSOURCES = $(wildcard $(SRC_DIR)/*.cpp)
 PROBJECTS = $(PRSOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 PREXEC = $(PROJECTNAME).exe
 
-.PHONY: all project
+.DEFAULT_GOAL := help
+.PHONY: help
 
-all: project
-project: $(PREXEC)
+help:
+	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
+	| sed -n 's/^\(.*\): \(.*\)##\(.*\)/\1\3/p' \
+	| column -t -s ' '
+
+build: $(PREXEC) ## Build project
 
 $(PREXEC): $(PROBJECTS)
 	$(CC) $(PROBJECTS) -o $(PREXEC) $(CFLAGS)
@@ -22,15 +27,11 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 $(OBJ_DIR):
 	mkdir $@
 
-clean:
+clean: ## Clean project
+	@echo "Clean..."
 	rm -rf $(OBJ_DIR)
 	rm ./*.exe
 
-run:
+run: ## Run project
+	@echo "Running..."
 	./$(PREXEC) $(ARGS)
-
-TEST_SRC_DIR = tests
-TEST_SOURCE = $(wildcard $(SRC_DIR)/vmcpu.cpp) $(wildcard $(TEST_SRC_DIR)/test01.cpp)
-TEST_EXEC = vmtest01.exe
-buildtest:
-	$(CC) $(TEST_SOURCE) -o $(TEST_EXEC) $(CFLAGS) -DVMTESTS
