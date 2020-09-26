@@ -43,7 +43,7 @@ int recvData(int socket, void *buffer, size_t length)
 void serializeMSG(MESSAGE_TO_DEBUGGER *msgPacket, char *dataArray)
 {
     DWORD *d1 = (DWORD *) dataArray;
-    memcpy(d1, msgPacket->R, 8);
+    memcpy(d1, msgPacket->R, 32);
     d1 += DWORD(8);
     *d1 = msgPacket->PC; ++d1;
     *d1 = msgPacket->SP; ++d1;
@@ -65,7 +65,7 @@ void serializeMSG(MESSAGE_TO_DEBUGGER *msgPacket, char *dataArray)
 void deserializeMSG(MESSAGE_TO_DEBUGGER *msgPacket, char *dataArray)
 {
     DWORD *d1 = (DWORD *) dataArray;
-    memcpy(msgPacket->R, d1, 8);
+    memcpy(msgPacket->R, d1, 32);
     d1 += DWORD(8);
     msgPacket->PC = *d1; ++d1;
     msgPacket->SP = *d1; ++d1;

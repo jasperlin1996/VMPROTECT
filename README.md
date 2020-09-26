@@ -18,6 +18,7 @@ A virtual machine that simulates a CPU along with a few other hardware component
 * [Debugger](#debugger)
 * [VMCore](#vmcore)
   * [Args](#args)
+  * [Security](#security)
   * [Documentation](#documentation)
     * [Memory](#memory)
     * [Registers](#registers)
@@ -32,7 +33,7 @@ A virtual machine that simulates a CPU along with a few other hardware component
 * make [tested on 4.1]
 
 ## Setup
-A bash script was created for easier setup of the development environment. At the beginning the script checks and installs the necessary software. But not *tkinter* package, use e.g. this command *sudo apt-get install python3-tk* in Debian-based distributions to install it.
+A bash script was created for easier setup of the development environment. At the beginning the script checks and installs the necessary software. Next, copy files and run some unit tests. The bash script is compatible with Debian-based distributions and *Advanced Package Tool*, which handle the installation and removal of software.
 
 <img src="doc/1.png" height="300">
 
@@ -89,7 +90,7 @@ When debugging a program you can use a dedicated debugger for *VMPROTECT*. The d
 9. Show all registers.
 10. Write to the code data.
 
-The debugger connects to the *VMPROTECT* using a TCP socket, default port *9313*. An example of debugging is seen in the screenshot below.
+In case of option *10*, the overwritten data will start from where the *PC* register points. The debugger connects to the *VMPROTECT* using a TCP socket, default port *9313*. An example of debugging is seen in the screenshot below.
 
 <img src="doc/6.png" height="300">
 
@@ -131,6 +132,16 @@ VMPROTECT.exe -m exec -p ./example-SumAndPrint
 # OR
 
 VMPROTECT.exe -m debug -p ./example-SumAndPrint
+```
+
+### Security
+The *VMCore* use (only in *Linux*) the ptrace syscall in order to implement a resistent anti debugging techniques. Patching the code wit *NOP's* will not work out of the box either, because the offset calculation must not be destroyed in order to guarantee normal execution.
+
+```c++
+offset = value;
+if (ptrace(PTRACE_TRACEME, 0, 1, 0) == 0) offset = value;
+if (ptrace(PTRACE_TRACEME, 0, 1, 0) == -1) offset *= value;
+if (offset != value) return 0;
 ```
 
 ### Documentation

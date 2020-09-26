@@ -5,6 +5,7 @@ from tkinter import filedialog
 import subprocess
 import binascii
 import time
+import threading
 
 class Editor:
   # Defining Constructor
@@ -298,12 +299,8 @@ class Editor:
     self.status.set("building separately ...")
     self.buildStage1()
     codePart = "#ifndef _VM_PROTECTED_D\n#define _VM_PROTECTED_D\n#include \"main.hpp\"\nBYTE ProtectedData[] = { 0xFF };\n#endif"
-    f = open("./VMCore/include/protected.hpp", 'w')
-    f.write(codePart)
-    f.close()
-    self.buildStage2()
-    self.buildOutputArea.config(state=DISABLED)
-    self.status.set("build finished")
+    thread = threading.Thread(target = self.buildStage2, args = (codePart,))
+    thread.start()
 
   def buildI(self, event = None):
     self.buildOutputArea.config(state=NORMAL)
@@ -324,21 +321,25 @@ class Editor:
     codePart2final = codePart2final[:-2]
     codePart3 = "};\n#endif"
     fullCode = codePart1 + codePart2final + codePart3
-    f = open("./VMCore/include/protected.hpp", 'w')
-    f.write(fullCode)
-    f.close()
-    time.sleep(5)
-    self.buildStage2()
-    self.buildOutputArea.config(state=DISABLED)
-    self.status.set("build finished")
+    thread = threading.Thread(target = self.buildStage2, args = (fullCode,))
+    thread.start()
   
   def buildStage1(self):
     cmdProcess = subprocess.Popen(['nasm', self.filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = cmdProcess.communicate()
     self.buildOutputArea.insert(END, out)
     self.buildOutputArea.insert(END, err)
+  
+  def buildStage2(self, codeToWrite):
+    f = open("./VMCore/include/protected.hpp", 'w')
+    f.write(codeToWrite)
+    f.close()
+    time.sleep(3)
+    self.buildStage3()
+    self.buildOutputArea.config(state=DISABLED)
+    self.status.set("build finished")
 
-  def buildStage2(self):
+  def buildStage3(self):
     cmdProcess = subprocess.Popen(['make', '-C', './VMCore', 'clean'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = cmdProcess.communicate()
     self.buildOutputArea.insert(END, out)

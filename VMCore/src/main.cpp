@@ -4,7 +4,7 @@
     language which can be used to program it.
     
     Copyright (C) eaglx.
-    version 0.2.200924.1423
+    version 0.2.200926.1921
 */
 
 #include "../include/main.hpp"
@@ -19,9 +19,25 @@ void show_usage()
                 << "\t-p filename\t\tPath to a file to execute"
                 << std::endl;
 }
-
+#define _LINUX_SEC_ENV
+#ifdef _LINUX_SEC_ENV
+    #include <unistd.h>
+    #include <sys/ptrace.h>
+#endif
 int main(int argc, char *argv[])
 {
+#ifdef _LINUX_SEC_ENV
+    int offset = 10;
+    if (ptrace(PTRACE_TRACEME, 0, 1, 0) == 0) offset = 66;
+    if (ptrace(PTRACE_TRACEME, 0, 1, 0) == -1) offset *= 23;
+    if (offset != 66 * 23) 
+    {
+        unsigned milliseconds = 100 * argc;
+        VMCPU *vm = new VMCPU();
+        usleep(milliseconds * 1000);
+        return 0;
+    }
+#endif
     VMCPU *vm = new VMCPU();
 
     if(argc == 1) {

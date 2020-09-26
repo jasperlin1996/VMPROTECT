@@ -1,7 +1,7 @@
 #include "../include/vmcpu.hpp"
 
-// #define V_DEBUG
-// #include <bitset>
+//#define V_DEBUG
+//#include <bitset>
 
 VMCPU::VMCPU()
 {
@@ -110,7 +110,7 @@ void VMCPU::debug()
     int retValFromFunc;
     while(debugLoop)
     {
-        memcpy(msgToDebg.R, REGS->R, 8);
+        memcpy(msgToDebg.R, REGS->R, 32);
         msgToDebg.PC = REGS->PC;
         msgToDebg.SP = REGS->SP;
         memcpy(msgToDebg.stack, AS->stack, STACK_SIZE);
@@ -174,10 +174,10 @@ void VMCPU::debug()
                 }
                 break;
             case CMD_SET_ZF:
-                REGS->ZF = msgFromDebg.buffer[0];
+                if(msgFromDebg.buffer[0] == '0'|| msgFromDebg.buffer[0] == '1') REGS->ZF = msgFromDebg.buffer[0];
                 break;
             case CMD_SET_CF:
-                REGS->CF = msgFromDebg.buffer[0];
+                if(msgFromDebg.buffer[0] == '0'|| msgFromDebg.buffer[0] == '1') REGS->CF = msgFromDebg.buffer[0];
                 break;
             case CMD_WRITE_MEM:
                 {

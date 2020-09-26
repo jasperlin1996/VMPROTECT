@@ -47,7 +47,7 @@ ______ ___________ _   _ _____ _____  ___________
 |___/ \____/\____/ \___/ \____/\____/\____/\_| \_|       
                                                          
     )" << std::endl;
-    std::cout << "version 0.1.200924.1423\n" << std::endl;
+    std::cout << "version 0.1.200926.1921\n" << std::endl;
 
     int cliSocket = 0;
     struct sockaddr_in serv_addr;
@@ -129,8 +129,8 @@ SHOWOPTIONS:
                     switch(option)
                     {
                         case 1:
-                            std::cout << "Value: ";
-                            std::cin >> val;
+                            std::cout << "Value (hex e.g. 1B or 1b): ";
+                            std::cin >> std::hex >> val;
                             msgFromDebg.cmdFlag = CMD_SET_PC;
                             *(DWORD*) &msgFromDebg.buffer[0] = val;
                             serializeMSG(&msgFromDebg, bufferMSGfromDbg);
@@ -138,8 +138,8 @@ SHOWOPTIONS:
                             if(retValFromFunc == SEND_ERROR) errorSend(cliSocket);
                             break;
                         case 2:
-                            std::cout << "Value: ";
-                            std::cin >> val;
+                            std::cout << "Value (hex e.g. 1B or 1b): ";
+                            std::cin >> std::hex >> val;
                             msgFromDebg.cmdFlag = CMD_SET_SP;
                             *(DWORD*) &msgFromDebg.buffer[0] = val;
                             serializeMSG(&msgFromDebg, bufferMSGfromDbg);
@@ -149,8 +149,8 @@ SHOWOPTIONS:
                         case 3:
                             std::cout << "register nr: ";
                             std::cin >> regNr;
-                            std::cout << "Value: ";
-                            std::cin >> val;
+                            std::cout << "Value (hex e.g. 1B or 1b): ";
+                            std::cin >> std::hex >> val;
                             msgFromDebg.cmdFlag = CMD_SET_R;
                             msgFromDebg.buffer[0] = regNr + '0';
                             *(DWORD*) &msgFromDebg.buffer[1] = val;
@@ -160,6 +160,7 @@ SHOWOPTIONS:
                             break;
                         default:
                             std::cout << "Unkonown command!\n";
+                            goto SHOWOPTIONS;
                     }
                 }
                 break;
@@ -198,6 +199,7 @@ SHOWOPTIONS:
                             break;
                         default:
                             std::cout << "Unkonown command!\n";
+                            goto SHOWOPTIONS;
                     }
                 }
                 break;
@@ -280,6 +282,7 @@ SHOWOPTIONS:
                 break;
             default:
                 std::cout << "Unkonown command!\n";
+                goto SHOWOPTIONS;
         }
     }
 

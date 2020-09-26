@@ -13,7 +13,7 @@ cat << "EOF"
  |_|_||_/__/\__\__,_|_|_\___|_|                                                                
 
 EOF
-echo "version 0.1.200924.0730"
+echo "version 0.1.200926.1246"
 echo "#####################################"
 
 echo ""
@@ -25,55 +25,69 @@ fullPathToDeploy="$pathToInstall$vmDirName"
 
 # #####################################
 # ############## STAGE 1 ##############
-echo "STAGE 1 - check if require programs exist"
+echo "*****************************"
+echo "STAGE 1 - check if required programs are installed"
+echo "*****************************"
 if ! [ -x "$(command -v python3)" ];
 then
-        echo "  \e[1;31mWARNING: python3 could not be found\e[0m"
+        echo -e "  \e[1;33mWARNING: python3 could not be found\e[0m"
         if [ $EUID != 0 ]; then
                 sudo "$0" "$@"
         fi
         sudo apt install python3 -y
 else
-        echo "  python3 installed - \e[96myes\e[0m"
+        echo -e "  python3 is installed - \e[96myes\e[0m"
+fi
+
+if python3 -c 'import pkgutil; exit(not pkgutil.find_loader("tkinter"))'; then
+        echo -e '  tkinter is installed - \e[96myes\e[0m'
+else
+        echo -e '  \e[1;33mWARNING: tkinter could not be found\e[0m'
+        if [ $EUID != 0 ]; then
+                sudo "$0" "$@"
+        fi 
+        sudo apt-get install python3-tk -y
 fi
 
 if ! [ -x "$(command -v make)" ];
 then
-        echo "  \e[1;31mWARNING: make could not be found\e[0m"
+        echo -e "  \e[1;33mWARNING: make could not be found\e[0m"
         if [ $EUID != 0 ]; then
                 sudo "$0" "$@"
         fi
         sudo apt install build-essential -y
 else
-        echo "  make installed - \e[96myes\e[0m"
+        echo -e "  make is installed - \e[96myes\e[0m"
 fi
 
 if ! [ -x "$(command -v g++)" ];
 then
-        echo "  \e[1;31mWARNING: g++ could not be found\e[0m"
+        echo -e "  \e[1;33mWARNING: g++ could not be found\e[0m"
         if [ $EUID != 0 ]; then
                 sudo "$0" "$@"
         fi
         sudo apt install build-essential -y
 else
-        echo "  g++ installed - \e[96myes\e[0m"
+        echo -e "  g++ is installed - \e[96myes\e[0m"
 fi
 
 if ! [ -x "$(command -v nasm)" ];
 then
-        echo "  \e[1;33mWARNING: nasm could not be found\e[0m"
+        echo -e "  \e[1;33mWARNING: nasm could not be found\e[0m"
         if [ $EUID != 0 ]; then
                 sudo "$0" "$@"
         fi
         sudo apt install nasm -y
 else
-        echo "  nasm installed - \e[96myes\e[0m"
+        echo -e "  nasm is installed - \e[96myes\e[0m"
 fi
 # #####################################
 
 # #####################################
 # ############## STAGE 2 ##############
+echo "*****************************"
 echo "STAGE 2 - copy files"
+echo "*****************************"
 mkdir $fullPathToDeploy
 cp -v -R ./VMCore $fullPathToDeploy/VMCore
 cp -v -R ./Editor $fullPathToDeploy/Editor
@@ -85,13 +99,15 @@ chmod +x $fullPathToDeploy/VMPROTECT.py
 
 # #####################################
 # ############## STAGE 3 ##############
-echo "STAGE 3 - test environment"
+echo "*****************************"
+echo "STAGE 3 - test the environment"
+echo "*****************************"
 make -C $fullPathToDeploy/VMCore buildtests
 make -C $fullPathToDeploy/VMCore runtests
-echo "\n\n"
+printf "\n\n"
 make -C $fullPathToDeploy/VMCore clean
 make -C $fullPathToDeploy/VMCore build
 # #####################################
 
-echo "\n"
-echo "\e[96mFINISHED!\e[0m"
+printf "\n"
+echo -e "\e[96mFINISHED!\e[0m"
