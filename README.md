@@ -1,14 +1,18 @@
 # VMPROTECT
 
-<i>A code obfuscation method using virtual machines to protect a product</i>
+<img src="https://repository-images.githubusercontent.com/236199786/eab7cc00-05b7-11eb-9f91-6ea165c2cc2c" height="200">
+
+<i>A code obfuscation method using virtual machines to protect programs</i>
 
 <a href="https://github.com/eaglx/VMPROTECT/stargazers"><img src="https://img.shields.io/github/stars/eaglx/VMPROTECT" alt="Stars Badge"/></a>
 <a href="https://github.com/eaglx/VMPROTECT/network/members"><img src="https://img.shields.io/github/forks/eaglx/VMPROTECT" alt="Forks Badge"/></a>
 <a href="https://github.com/eaglx/VMPROTECT/blob/master/LICENSE"><img src="https://img.shields.io/github/license/eaglx/VMPROTECT?color=2b9348" alt="License Badge"/></a>
 [![GitHub release](https://img.shields.io/github/release/eaglx/VMPROTECT)](https://GitHub.com/eaglx/VMPROTECT/releases/)
-<!---![Progress](https://progress-bar.dev/100/?title=progress-v0.2)-->
+![Progress](https://progress-bar.dev/6/?title=progress-v0.5)
 
-A virtual machine that simulates a CPU along with a few other hardware components, allows to perform arithmetic operations, reads and writes to memory and interacts with I/O devices. It can understand a machine language which can be used to program it. Virtual machines used in code obfuscation are completely different than common virtual machnines. They are very specific to the task of executing a few set of instructions. Each instruction is given a custom opcode (often generated at random).
+A virtual machine that simulates a CPU along with a few other hardware components, allows to perform arithmetic operations, reads and writes to memory and interacts with I/O devices. It can understand a machine language which can be used to program it. Virtual machines used in code obfuscation are completely different than common virtual machnines. They are very specific to the task of executing a few set of instructions. Each instruction is given a custom opcode (often generated at random). :warning: Project only tested on Linux!
+
+<img src="doc/star-history.png" height="250">
 
 ## Table of contents
 * [Requirements](#requirements)
@@ -21,13 +25,16 @@ A virtual machine that simulates a CPU along with a few other hardware component
   * [Security](#security)
   * [Documentation](#documentation)
     * [Memory](#memory)
+    * [Drivers](#drivers)
+      * [Sysbus](#sysbus)
     * [Registers](#registers)
     * [Instructions](#instructions)
 * [Disclaimer](#disclaimer)
 
 ## Requirements
 * NASM [tested on 2.13.02]
-* Python3 [tested on 3.6.9]
+* Only MacOS and Linux:
+  * Python3 [tested on 3.6.9]
   * Tkinter [tested on 8.6]
 * g++ [tested on 7.5.0]
 * make [tested on 4.1]
@@ -37,16 +44,33 @@ A bash script was created for easier setup of the development environment. At th
 
 <img src="doc/1.png" height="300">
 
+Or simply clone the project to the desired directory and install required software.
+
 After setting up the environment, the directory structure looks like in the screenshot below. There are:
 * Debugger - the source code of the debugger,
-* Editor - the source code of the code editor,
+* SharedCode - shared codes between debugger and VMCore,
 * VMCore - the source code of the virtual machine,
 * vm.inc - the file with definitions of opcodes,
-* VMPROTECT.py - start here :smile:
+* Editor - the source code of the code editor (only MacOS and Linux),
+* VMPROTECT.py - start here (only MacOS and Linux) :smile:
 
 <img src="doc/2.png" height="150">
 
+In ShareCode/global.hpp you can set the target system environment.
+
+```c++
+#ifndef _GLOBAL_VARIABLES_HPP
+#define _GLOBAL_VARIABLES_HPP
+
+#define _LINUX_DEV_ENVIRONMENT
+// #define _WIN32_DEV_ENVIRONMENT
+
+#endif
+```
+
 ## Editor
+:warning: **SUPPORTED MacOS and Linux**
+
 The editor was written in *Python*. It is a plain text editor with no code syntax highlighting. You can write programs for *VMPROTECT* here. The window consists of a menu, a space for entering text and an output from compiling and building the program. Additionally, the editor status is shown at the bottom.
 
 <img src="doc/3.png" height="300">
@@ -115,7 +139,7 @@ VMCPU::VMCPU()
 The *VMPROTECT* can be start with no arguments but there need to be set a code to execute in *protected.hpp*.
 
 ```c++
-BYTE ProtectedData[] = { 0xFF }; // <- HERE PASTE A CODE TO EXECUTE BY VMCPU.
+VBYTE ProtectedData[] = { 0xFF }; // <- HERE PASTE A CODE TO EXECUTE BY VMCPU.
 ```
 
 Param *-m* set a program mode. Possible program execution modes:
@@ -153,17 +177,73 @@ The VM has 51,200 memory locations, each of which stores a 8-bit value (it can s
 Also, there is a data buffer which has 1024 memory locations, each of which stores a 1-bit value. This buffer will store user input.
 
 ```c++
-typedef uint8_t BYTE;
-typedef uint16_t WORD;
-typedef uint32_t DWORD;
+typedef uint8_t VBYTE;
+typedef uint16_t VWORD;
+typedef uint32_t VDWORD;
 
 #define CODE_DATA_SIZE 51200
 #define STACK_SIZE 256
 #define INPUT_BUFFER_SIZE 1024
 
-BYTE codeData[CODE_DATA_SIZE];
-DWORD stack[STACK_SIZE];
-BYTE dataBuffer[INPUT_BUFFER_SIZE];
+VBYTE codeData[CODE_DATA_SIZE];
+VDWORD stack[STACK_SIZE];
+VBYTE dataBuffer[INPUT_BUFFER_SIZE];
+```
+
+In addition, the *VMCore* has implemented memory management through memory frames. This allows the execution of programs larger than those specified by CODE_DATA_SIZE. The frames will be saved in files named *.cached.x.frame* where *x* is the frame number.
+
+#### Drivers
+Drivers are designed to expand the *VMPROTECT*'s capabilities.
+
+OPCODE | Mnemonic and params | Description
+--- | --- | ---
+60  |  VMSYSBUS word | Arguments to functions pass via the stack |
+
+#### Sysbus
+A sysbus is a driver that allows access to a filesystem. Arguments to functions pass via the stack.
+
+FUNC | CMD | CODE | Windows | Linux | MacOS
+--- | --- | --- | --- | --- | ---
+createDirectory | sysdircr | 1 | YES | YES | NO |
+deleteDirectory | sysdirdel | 2 | YES | YES | NO |
+moveDirectory | sysdirmv | 3 | YES | NO | NO |
+copyDirectory | sysdircp | 4 | YES | NO | NO |
+createFile | sysfilecr | 5 | YES | YES | NO |
+deleteFile | sysfiledel | 6 | YES | YES | NO |
+moveFile | sysfilemv | 7 | YES | YES | NO |
+copyFile | sysfilecp | 8 | YES | YES | NO |
+
+Functions' implementation:
+```c++
+int createDirectory(std::string, int));
+int deleteDirectory(std::string);
+int moveDirectory(std::string, std::string);
+int copyDirectory(std::string, std::string);
+int createFile(std::string, uint8_t*, int);
+int deleteFile(std::string);
+int moveFile(std::string, std::string);
+int copyFile(std::string, std::string);
+```
+
+Example call function use case:
+```nasm
+%include "vm.inc"
+
+start:
+    dw 0x6d56
+    movd r1, 0x0
+    movd r2, 0x0
+    movd r1, path
+    movd r2, data
+    push r1
+    push r2
+    vmsysbus sysfilecr
+    ee
+
+data:
+    db 0x01, 0x02, 0x03, 0x04, 0x3, 0xD
+path:
+    db "/home/eaglx/file.bin", 0x3, 0xD
 ```
 
 #### Registers
@@ -171,7 +251,7 @@ A register is a slot for storing value on the CPU. The VM has 10 total registers
 
 ```c++
 /* General Purpose Registers R0 -> R7 */
-DWORD R[8];
+VDWORD R[8];
 struct {
     /* Zero Flag 
         value 1 - flag is set if the result of the last comparison was zero
@@ -185,9 +265,9 @@ struct {
     unsigned char CF : 1;
 };
 /* Program Counter */
-DWORD PC;
+VDWORD PC;
 /* Stack Pointer */
-DWORD SP;
+VDWORD SP;
 ```
 
 #### Instructions
@@ -243,6 +323,8 @@ EE  | EE | End of code and end of the VM's cpu |
   | | |
 50  |  CMP r<sub>dst</sub>, r<sub>src</sub> | Compare two registers |
 51  |  CMPL r<sub>dst</sub>, r<sub>src</sub> | Compare two registers (the low byte) |
+  | | |
+60  |  VMSYSBUS word | Arguments to functions pass via the stack |
   | | |
 90  |  PUSH r<sub>src</sub> | Push value from a register to stack |
 91  |  POP r<sub>dst</sub> | Pop value from stack to a register |

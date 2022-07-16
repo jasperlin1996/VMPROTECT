@@ -1,9 +1,10 @@
 PROJECTNAME = VmprotDEBUGGER
 CC = g++
-CFLAGS = -Wall -Wextra -std=c++11
+CFLAGS = -Wall -Wextra -std=c++17
 SRC_DIR = .
+SHARED_SRC_DIR = ../SharedCode
 OBJ_DIR = obj
-PRSOURCES = $(wildcard $(SRC_DIR)/*.cpp)
+PRSOURCES = $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SHARED_SRC_DIR)/*.cpp)
 PROBJECTS = $(PRSOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 PREXEC = $(PROJECTNAME).exe
 

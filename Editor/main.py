@@ -6,6 +6,7 @@ import subprocess
 import binascii
 import time
 import threading
+import os
 
 class Editor:
   # Defining Constructor
@@ -89,6 +90,14 @@ class Editor:
     self.helpmenu.add_command(label="About",command=self.infoabout)
     # Cascading helpmenu to menubar
     self.menubar.add_cascade(label="Help", menu=self.helpmenu)
+
+    # Creating Settings button if win32
+    # ********************************** TODO: read a config file **********************************
+    self.pathToCompiler = ""
+    self.pathToNASM = ""
+    if os.name == 'nt':
+      self.menubar.add_command(label="Settings", command=self.showSettings)
+    # ********************************** TODO: read a config file **********************************
 
     # Creating Scrollbar
     scrol_y = Scrollbar(self.root,orient=VERTICAL)
@@ -267,6 +276,22 @@ class Editor:
   def infoabout(self):
     messagebox.showinfo("About VMPROTECT","A code obfuscation method using virtual machines to protect a product.\nMore information at github.com/eaglx/VMPROTECT")
 
+  # Settings
+  def showSettings(self):
+    tl = Toplevel(self.root)
+    tl.geometry("500x100")
+    tl.wm_title("Settings")
+    Label(tl, text="Path to NASM").grid(row=0)
+    Label(tl, text="Path to cl.exe").grid(row=1)
+    textEntry1 = Entry(tl, width = 60) 
+    textEntry1.grid(row=0, column=1)
+    textEntry2 = Entry(tl, width = 60)
+    textEntry2.grid(row=1, column=1)
+    def getTextInput():
+        self.pathToNASM = textEntry1.get()
+        self.pathToCompiler = textEntry2.get()
+    Button(tl, text='Save', command=getTextInput, width = 25).grid(row=3, column=1, pady=4) 
+
   # Defining shortcuts Funtion
   def shortcuts(self):
     # Binding Ctrl+n to newfile funtion
@@ -293,27 +318,29 @@ class Editor:
     # Binding Ctrl+b+i to build integrated funtion
     self.root.bind("<Control-b><i>",self.buildI)
 
+  # Build a program separately to VMCore
   def buildS(self, event = None):
     self.buildOutputArea.config(state=NORMAL)
     self.buildOutputArea.delete("1.0",END)
     self.status.set("building separately ...")
     self.buildStage1()
-    codePart = "#ifndef _VM_PROTECTED_D\n#define _VM_PROTECTED_D\n#include \"main.hpp\"\nBYTE ProtectedData[] = { 0xFF };\n#endif"
+    codePart = "#ifndef _VM_PROTECTED_D\n#define _VM_PROTECTED_D\n#include \"main.hpp\"\nVBYTE ProtectedData[] = { 0xFF };\n#endif"
     thread = threading.Thread(target = self.buildStage2, args = (codePart,))
     thread.start()
 
+  # Build a program integrated to VMCore
   def buildI(self, event = None):
     self.buildOutputArea.config(state=NORMAL)
     self.buildOutputArea.delete("1.0",END)
     self.status.set("building integrated ...")
     self.buildStage1()
-    codePart1 = "#ifndef _VM_PROTECTED_D\n#define _VM_PROTECTED_D\n#include \"main.hpp\"\nBYTE ProtectedData[] = { "
+    codePart1 = "#ifndef _VM_PROTECTED_D\n#define _VM_PROTECTED_D\n#include \"main.hpp\"\nVBYTE ProtectedData[] = { "
     codePart2 = ""
     fileNamePart1 = (self.filename.replace(self.filename.split("/")[-1],''))
     fileNamePart2 = (self.filename.split("/")[-1]).split('.')[0]
     with open(fileNamePart1 + fileNamePart2, mode='rb') as file:
       codePart2 = file.read()
-    codePart2str = binascii.hexlify(bytearray(codePart2)).decode("utf-8")
+    codePart2str = binascii.hexlify(VBYTEarray(codePart2)).decode("utf-8")
     codePart2final = ""
     for i in range(0, len(codePart2str), 2):
       s1,s2 = codePart2str[i:i+2]
@@ -334,29 +361,46 @@ class Editor:
     f = open("./VMCore/include/protected.hpp", 'w')
     f.write(codeToWrite)
     f.close()
+    if os.name == 'nt':
+      codeToWrite = "#ifndef _GLOBAL_VARIABLES_HPP\n#define _GLOBAL_VARIABLES_HPP\n#define _WIN32_DEV_ENVIRONMENT\n#endif"
+      f = open("./SharedCode/global.hpp.hpp", 'w')
+      f.write(codeToWrite)
+      f.close()
+    else:
+      codeToWrite = "#ifndef _GLOBAL_VARIABLES_HPP\n#define _GLOBAL_VARIABLES_HPP\n#define _LINUX_DEV_ENVIRONMENT\n#endif"
+      f = open("./SharedCode/global.hpp.hpp", 'w')
+      f.write(codeToWrite)
+      f.close()
     time.sleep(3)
     self.buildStage3()
     self.buildOutputArea.config(state=DISABLED)
     self.status.set("build finished")
 
   def buildStage3(self):
-    cmdProcess = subprocess.Popen(['make', '-C', './VMCore', 'clean'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = cmdProcess.communicate()
-    self.buildOutputArea.insert(END, out)
-    self.buildOutputArea.insert(END, err)
-    cmdProcess = subprocess.Popen(['make', '-C', './VMCore', 'build'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = cmdProcess.communicate()
-    self.buildOutputArea.insert(END, out)
-    self.buildOutputArea.insert(END, err)
-    cmdProcess = subprocess.Popen(['make', '-C', './Debugger', 'build'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = cmdProcess.communicate()
-    self.buildOutputArea.insert(END, out)
-    self.buildOutputArea.insert(END, err)
-    cmdProcess = subprocess.Popen(['cp', '-v', './VMCore/VMPROTECT.exe', (self.filename.replace(self.filename.split("/")[-1],'')) + 'VMPROTECT.exe'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = cmdProcess.communicate()
-    self.buildOutputArea.insert(END, out)
-    self.buildOutputArea.insert(END, err)
-    cmdProcess = subprocess.Popen(['cp', '-v', './Debugger/VmprotDEBUGGER.exe', (self.filename.replace(self.filename.split("/")[-1],'')) + 'VmprotDEBUGGER.exe'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = cmdProcess.communicate()
-    self.buildOutputArea.insert(END, out)
-    self.buildOutputArea.insert(END, err)
+    if os.name == 'nt':
+      # TODO: NOT IMPLEMENTED YET!
+      # cl /EHsc or msbuild project.sln/Flags 
+      # self.pathToCompiler
+      # self.pathToNASM
+      pass
+    else:
+      cmdProcess = subprocess.Popen(['make', '-C', './VMCore', 'clean'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      out, err = cmdProcess.communicate()
+      self.buildOutputArea.insert(END, out)
+      self.buildOutputArea.insert(END, err)
+      cmdProcess = subprocess.Popen(['make', '-C', './VMCore', 'build'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      out, err = cmdProcess.communicate()
+      self.buildOutputArea.insert(END, out)
+      self.buildOutputArea.insert(END, err)
+      cmdProcess = subprocess.Popen(['make', '-C', './Debugger', 'build'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      out, err = cmdProcess.communicate()
+      self.buildOutputArea.insert(END, out)
+      self.buildOutputArea.insert(END, err)
+      cmdProcess = subprocess.Popen(['cp', '-v', './VMCore/VMPROTECT.exe', (self.filename.replace(self.filename.split("/")[-1],'')) + 'VMPROTECT.exe'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      out, err = cmdProcess.communicate()
+      self.buildOutputArea.insert(END, out)
+      self.buildOutputArea.insert(END, err)
+      cmdProcess = subprocess.Popen(['cp', '-v', './Debugger/VmprotDEBUGGER.exe', (self.filename.replace(self.filename.split("/")[-1],'')) + 'VmprotDEBUGGER.exe'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      out, err = cmdProcess.communicate()
+      self.buildOutputArea.insert(END, out)
+      self.buildOutputArea.insert(END, err)

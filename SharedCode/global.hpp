@@ -1,0 +1,7 @@
+#ifndef _GLOBAL_VARIABLES_HPP
+#define _GLOBAL_VARIABLES_HPP
+
+#define _LINUX_DEV_ENVIRONMENT
+// #define _WIN32_DEV_ENVIRONMENT
+
+#endif

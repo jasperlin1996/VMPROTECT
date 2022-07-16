@@ -39,6 +39,7 @@
 #define SHL 0x3D
 #define CMP 0x50
 #define CMPL 0x51
+#define VMSYSBUS 0x60
 #define PUSH 0x90
 #define POP 0x91
 #define CLST 0x92

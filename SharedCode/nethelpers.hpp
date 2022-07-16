@@ -1,12 +1,24 @@
 #ifndef VM_NET_HELPERS_H
 #define VM_NET_HELPERS_H
 
-#include "./vmcpu.hpp"
+#include "datatypes.hpp"
+#include "memsize.hpp"
+#include "global.hpp"
 
 #include <string.h>
-#include <unistd.h> 
-#include <sys/socket.h> 
-#include <netinet/in.h>
+
+#ifdef _LINUX_DEV_ENVIRONMENT
+    #include <unistd.h> 
+    #include <sys/socket.h> 
+    #include <netinet/in.h>
+#else //_WIN32_DEV_ENVIRONMENT
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #include <tchar.h>
+
+    // Need to link with Ws2_32.lib
+    #pragma comment (lib, "Ws2_32.lib")
+#endif
 
 #define SEND_ALL_DATA 1
 #define SEND_ZERO 0
@@ -22,14 +34,14 @@ int recvData(int, void *, size_t);
 
 struct MESSAGE_TO_DEBUGGER
 {
-    DWORD R[8];
-    DWORD PC;
-    DWORD SP;
-    DWORD stack[STACK_SIZE];
+    VDWORD R[8];
+    VDWORD PC;
+    VDWORD SP;
+    VDWORD stack[STACK_SIZE];
     unsigned char ZF;
     unsigned char CF;
-    BYTE codeData[CODE_DATA_SIZE];
-    BYTE dataBuffer[INPUT_BUFFER_SIZE];
+    VBYTE codeData[CODE_DATA_SIZE];
+    VBYTE dataBuffer[INPUT_BUFFER_SIZE];
 };
 
 #define CMD_RUN 100

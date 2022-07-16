@@ -13,11 +13,11 @@ cat << "EOF"
  |_|_||_/__/\__\__,_|_|_\___|_|                                                                
 
 EOF
-echo "version 0.1.200926.1246"
+echo "version 0.1.211007.1837"
 echo "#####################################"
 
 echo ""
-echo -n "Write path to deploy: "
+echo -n "Path to deploy VMPROTECT: "
 read pathToInstall
 
 vmDirName="/VMPROTECT"
@@ -92,6 +92,7 @@ mkdir $fullPathToDeploy
 cp -v -R ./VMCore $fullPathToDeploy/VMCore
 cp -v -R ./Editor $fullPathToDeploy/Editor
 cp -v -R ./Debugger $fullPathToDeploy/Debugger
+cp -v -R ./SharedCode $fullPathToDeploy/SharedCode
 cp -v ./Compiler/vm.inc $fullPathToDeploy/vm.inc
 cp -v ./VMPROTECT.py $fullPathToDeploy/VMPROTECT.py
 chmod +x $fullPathToDeploy/VMPROTECT.py

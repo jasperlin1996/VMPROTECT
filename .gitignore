@@ -4,3 +4,4 @@
 *.vex
 
 __pycache__
+.vscode
