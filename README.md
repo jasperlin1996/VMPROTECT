@@ -159,7 +159,7 @@ VMPROTECT.exe -m debug -p ./example-SumAndPrint
 ```
 
 ### Security
-The *VMCore* use (only in *Linux*) the ptrace syscall in order to implement a resistent anti debugging techniques. Patching the code wit *NOP's* will not work out of the box either, because the offset calculation must not be destroyed in order to guarantee normal execution.
+The *VMCore* use (only in *Linux*) the ptrace syscall in order to implement a resistent anti debugging techniques. Patching the code with *NOP's* will not work out of the box either, because the offset calculation must not be destroyed in order to guarantee normal execution.
 
 ```c++
 offset = value;
